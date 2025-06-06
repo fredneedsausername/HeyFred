@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, request, make_response
 from flask_socketio import SocketIO, emit
 import os
 from fredcrash import enable_crash_logging
@@ -23,7 +23,7 @@ app = Flask(__name__, template_folder=flask_template_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 
-socketio = SocketIO(app, async_mode='gevent')
+socketio = SocketIO(app, async_mode="gevent")
 
 
 def generate_llm_response(message):    
@@ -44,7 +44,7 @@ def generate_llm_response(message):
         yield f"Errore durante la generazione: {e}"
 
 
-def authorization_needed(fn):
+def authentication_needed(fn):
     @wraps(fn)
     def implementation(*args, **kwargs):
         if 'user' in session:
@@ -54,33 +54,47 @@ def authorization_needed(fn):
     return implementation
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    pass # IMPLEMENT LOGIN ROUTE AND TEMPLATE
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if password == os.getenv('LOGIN_PASSWORD'):
+            session['user'] = 'fred'
+            response = make_response()
+            response.headers['HX-Redirect'] = url_for('index')
+            return response
+        else:
+            return '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert"><strong class="font-bold">Errore:</strong><span class="block sm:inline"> Password errata. Riprova.</span></div>'
+    if request.method == 'GET':
+        return render_template('login.html')
 
 
 @app.route('/logout')
 def logout():
-    pass # IMPLEMENT LOGOUT ROUTE
+    session.clear()
+    return redirect(url_for('login'))
 
 
-@authorization_needed
 @app.route('/')
+@authentication_needed
 def index():
     return render_template('chat.html')
 
 
 @socketio.on('connect')
+@authentication_needed
 def on_connect():
     pass
 
 
 @socketio.on('disconnect')
+@authentication_needed
 def on_disconnect():
     pass
 
 
 @socketio.on('message')
+@authentication_needed
 def handle_message(data):
     user_message = data['message']
     
@@ -98,11 +112,12 @@ def handle_message(data):
     except Exception as e:
         emit('response_error', {'error': f'{e}'})
 
+
 if __name__ == '__main__':
     # Enable crash logging for both prod and dev
     enable_crash_logging('..')
 
-    # Determine if debug mode based on FLASK.ENV
+    # Determine if debug mode based on FLASK_ENV
     app_debug_mode = False if os.getenv('FLASK_ENV') == 'production' else True
 
     # Run the application with gevent
