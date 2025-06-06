@@ -54,17 +54,55 @@ def authentication_needed(fn):
     return implementation
 
 
+def is_htmx_request():
+    """Check if the request is made by htmx"""
+    return request.headers.get('HX-Request') == 'true'
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         password = request.form.get('password')
+        
         if password == os.getenv('LOGIN_PASSWORD'):
-            session['user'] = 'fred'
-            response = make_response()
-            response.headers['HX-Redirect'] = url_for('index')
-            return response
+            session['user'] = 'freduser'
+            
+            if is_htmx_request():
+                # For htmx requests, return empty content with redirect header
+                response = make_response('')
+                response.headers['HX-Redirect'] = url_for('index')
+                return response
+            else:
+                # For regular form submission, redirect normally
+                return redirect(url_for('index'))
         else:
-            return '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert"><strong class="font-bold">Errore:</strong><span class="block sm:inline"> Password errata. Riprova.</span></div>'
+            error_message = "Password errata. Riprova."
+            
+            if is_htmx_request():
+                # Return formatted error HTML for htmx to swap into the error container
+                error_html = f'''
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-4 relative animate-pulse" role="alert"
+                     x-data="{{ show: false }}" 
+                     x-init="setTimeout(() => show = true, 100)"
+                     x-show="show"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 transform scale-95"
+                     x-transition:enter-end="opacity-100 transform scale-100">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="font-medium">{error_message}</span>
+                    </div>
+                </div>
+                '''
+                return error_html
+            else:
+                # For regular form submission, use flash messages
+                from flask import flash
+                flash(error_message, 'error')
+                return render_template('login.html')
+    
     if request.method == 'GET':
         return render_template('login.html')
 

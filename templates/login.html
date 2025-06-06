@@ -3,39 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - HeyFred</title>
+    <title>Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 flex items-center justify-center h-screen">
-    <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">HeyFred Login</h2>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <strong class="font-bold">Errore:</strong>
-                <span class="block sm:inline">{{ message }}</span>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.8s ease-out; }
+        .float { animation: float 6s ease-in-out infinite; }
+        .gradient-bg { 
+            background: linear-gradient(-45deg, #f8fafc, #e2e8f0, #cbd5e1, #94a3b8);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .input-glow:focus {
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05), 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-glow:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg flex items-center justify-center p-4">
+    <div x-data="loginApp()" x-init="init()" class="w-full">
+        <!-- Floating Background Elements -->
+        <div class="fixed inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl float" style="animation-delay: 0s;"></div>
+            <div class="absolute top-40 right-20 w-96 h-96 bg-gray-200/10 rounded-full blur-3xl float" style="animation-delay: 2s;"></div>
+            <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-slate-300/10 rounded-full blur-3xl float" style="animation-delay: 4s;"></div>
+        </div>
 
-        <form action="{{ url_for('login') }}" method="post">
-            <div>
-                <label for="password" class="sr-only">Password</label>
-                <input id="password" name="password" type="password" required
-                       class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none focus:border-black focus:ring-4 focus:ring-black/5 transition-all text-lg"
-                       placeholder="Password">
+        <!-- Main Login Container -->
+        <div class="relative max-w-md w-full mx-auto">
+            <!-- Logo/Brand Section -->
+            <div class="text-center mb-12 fade-in-up" style="animation-delay: 0.2s;">
+                <div class="text-5xl md:text-6xl font-thin mb-4 text-black tracking-tight">HeyFred</div>
+                <div class="text-lg md:text-xl text-gray-600 font-light tracking-wide">L'Effimera IA Veloce</div>
             </div>
 
-            <div class="mt-6">
-                <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-all">
-                    Entra
-                </button>
+            <!-- Login Form -->
+            <div class="glass-effect rounded-3xl p-4 md:p-8 shadow-2xl fade-in-up" style="animation-delay: 0.4s;">
+                <div class="text-center mb-4 md:mb-8">
+                    <h2 class="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">Solo un'ultima cosa...</h2>
+                </div>
+                
+                <!-- Error Messages Container -->
+                <div id="error-container" class="mb-6">
+                    <!-- Initial server-side errors (if any) -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl mb-4 relative" role="alert">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-medium">{{ message }}</span>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+                </div>
+
+                <form hx-post="{{ url_for('login') }}" 
+                      hx-target="#error-container"
+                      hx-swap="innerHTML"
+                      hx-indicator="#loading-indicator"
+                      @htmx:before-request="isLoading = true; clearErrors()"
+                      @htmx:after-request="isLoading = false">
+                    
+                    <div class="mb-6">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required
+                            x-ref="passwordInput"
+                            @focus="inputFocused = true"
+                            @blur="inputFocused = false"
+                            class="w-full px-4 py-4 rounded-2xl border-2 border-gray-200 focus:outline-none focus:border-black input-glow transition-all duration-300 text-lg bg-white/50"
+                            placeholder="Inserisci la tua password"
+                            :disabled="isLoading">
+                    </div>
+
+                    <button 
+                        type="submit"
+                        :disabled="isLoading"
+                        class="w-full flex items-center justify-center py-4 px-6 border border-transparent rounded-2xl shadow-lg text-lg font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-black/10 transition-all duration-300 btn-glow disabled:opacity-50 disabled:cursor-not-allowed">
+                        
+                        <span x-show="!isLoading" class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            </svg>
+                            Accedi
+                        </span>
+                        
+                        <span x-show="isLoading" class="flex items-center" id="loading-indicator">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Accesso in corso...
+                        </span>
+                    </button>
+                </form>
             </div>
-        </form>
+
+            <!-- Bottom Animation -->
+            <div class="text-center mt-8 fade-in-up" style="animation-delay: 0.6s;">
+                <div class="inline-flex items-center space-x-2 text-gray-400">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0s;"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function loginApp() {
+            return {
+                isLoading: false,
+                inputFocused: false,
+
+                init() {
+                    // Focus the password input after a short delay
+                    setTimeout(() => {
+                        this.$refs.passwordInput?.focus();
+                    }, 800);
+                },
+
+                clearErrors() {
+                    // Clear any existing errors when starting a new request
+                    document.getElementById('error-container').innerHTML = '';
+                }
+            }
+        }
+
+        // Handle successful login redirect
+        document.body.addEventListener('htmx:beforeSwap', function(evt) {
+            if (evt.detail.xhr.getResponseHeader('HX-Redirect')) {
+                window.location.href = evt.detail.xhr.getResponseHeader('HX-Redirect');
+                evt.detail.shouldSwap = false; // Don't swap content, we're redirecting
+            }
+        });
+    </script>
 </body>
 </html>
