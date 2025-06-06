@@ -1,0 +1,15 @@
+Stack:
+    - Frontend:
+        - Logic: HTMX & Alpine.js
+        - CSS: Tailwind
+        - HTML: HTML
+    - Backend:
+        - Language: Python
+        - Framework: Flask
+        - WebSockets: Flask-SocketIO python library
+    - Database:
+        - DBMS: PostgreSQL
+        - Connector: psycopg3
+    - Production:
+        - API: Gevent for asyncio support for websockets
+        - Static Files: Nginx

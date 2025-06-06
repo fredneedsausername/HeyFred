@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeyFred</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes typingDots {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .slide-in-left { animation: slideInLeft 0.4s ease-out; }
+        .slide-in-right { animation: slideInRight 0.4s ease-out; }
+        
+        .typing-dot {
+            animation: typingDots 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0s; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+    <div x-data="chatApp()" class="h-screen flex flex-col">
+        <!-- Intro Animation -->
+        <div x-show="showIntro" 
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+            <div class="text-center fade-in-up">
+                <div class="text-6xl md:text-8xl font-thin mb-4 text-black tracking-tight">HeyFred</div>
+                <div class="text-xl md:text-2xl text-gray-500 font-light tracking-wide">L'Effimera IA Veloce</div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div x-show="!showIntro" class="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10 relative">
+            <!-- Desktop Cancella button - positioned at extreme left -->
+            <button @click="clearChat()" class="hidden md:block absolute left-16 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-base font-medium z-20">Cancella</button>
+            
+            <div class="max-w-5xl mx-auto px-8 py-6">
+                <!-- Mobile layout (original) -->
+                <div class="flex items-center justify-between md:hidden">
+                    <div class="text-3xl font-semibold text-black tracking-tight">HeyFred</div>
+                    <button @click="clearChat()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-base font-medium">Cancella</button>
+                </div>
+                
+                <!-- Desktop layout (modified) -->
+                <div class="hidden md:flex items-center justify-center">
+                    <div class="text-3xl font-semibold text-black tracking-tight">HeyFred</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div x-show="!showIntro" class="flex-1 overflow-y-auto py-12" id="messages-container">
+            <div class="max-w-5xl mx-auto px-8 h-full">
+                <!-- Welcome Message -->
+                <div x-show="messages.length === 0" class="text-center flex flex-col justify-center min-h-[60vh]">
+                    <div class="text-5xl font-light text-black mb-6">Ciao!</div>
+                    <div class="text-xl text-gray-600 mb-6 max-w-lg mx-auto">Sono Fred, la tua IA veloce. Come posso aiutarti oggi?</div>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button @click="suggestMessage('Spiegami come funziona l\'intelligenza artificiale')" 
+                                class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
+                            Cos'è l'IA?
+                        </button>
+                        <button @click="suggestMessage('Aiutami a scrivere un'email professionale')" 
+                                class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
+                            Scrivi email
+                        </button>
+                        <button @click="suggestMessage('Dammi 5 idee creative per il weekend')" 
+                                class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
+                            Idee weekend
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <template x-for="message in messages" :key="message.id">
+                    <div class="mb-10" :class="message.isUser ? 'slide-in-right' : 'slide-in-left'">
+                        <div :class="message.isUser ? 'flex justify-end' : 'flex justify-start'">
+                            <div class="max-w-4xl">
+                                <!-- Message Content -->
+                                <div :class="message.isUser ? 
+                                    'bg-black text-white rounded-2xl rounded-tr-sm px-4 py-3 shadow-lg text-base' : 
+                                    'bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm text-base'">
+                                    <div x-html="message.content" class="prose prose-base max-w-none" 
+                                         :class="message.isUser ? 'prose-invert' : ''"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <!-- Typing Indicator -->
+                <div x-show="isStreaming && !hasReceivedChunk" class="mb-10 slide-in-left">
+                    <div class="flex justify-start">
+                        <div class="max-w-4xl">
+                            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                                <div class="flex space-x-1">
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div x-show="!showIntro" class="border-t border-gray-200 bg-white shadow-lg p-8">
+            <form @submit.prevent="sendMessage()" class="max-w-5xl mx-auto">
+                <div class="grid grid-cols-[1fr_auto] gap-4 items-center">
+                    <div class="relative">
+                        <textarea 
+                            x-model="currentMessage"
+                            x-ref="messageInput"
+                            @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
+                            @input="adjustTextareaHeight()"
+                            placeholder="Cos'hai in mente?"
+                            class="w-full resize-none border-2 border-gray-200 rounded-3xl px-5 py-4 focus:outline-none focus:border-black focus:ring-4 focus:ring-black/5 transition-all bg-white shadow-md text-lg text-gray-900 placeholder-gray-500 font-medium overflow-hidden"
+                            rows="1"
+                            :disabled="isStreaming"
+                            style="min-height: 64px;"></textarea>
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        :disabled="!currentMessage.trim() || isStreaming"
+                        class="bg-black text-white p-4 rounded-3xl hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-1 disabled:hover:transform-none -translate-y-0.5">
+                        <svg x-show="!isStreaming" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        <div x-show="isStreaming" class="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function chatApp() {
+            return {
+                showIntro: true,
+                messages: [],
+                currentMessage: '',
+                isStreaming: false,
+                hasReceivedChunk: false,
+                socket: null,
+                messageId: 0,
+
+                init() {
+                    // Hide intro after 250ms
+                    setTimeout(() => {
+                        this.showIntro = false;
+                        this.$nextTick(() => {
+                            this.$refs.messageInput?.focus();
+                        });
+                    }, 250);
+
+                    // Initialize WebSocket connection
+                    this.initSocket();
+                },
+
+                initSocket() {
+                    // Connect to Flask-SocketIO server
+                    this.socket = io();
+                    
+                    this.socket.on('connect', () => {
+                        console.log('Connected to server');
+                    });
+                    
+                    this.socket.on('response_start', () => {
+                        // Just set streaming state, don't add empty message yet
+                        this.hasReceivedChunk = false;
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    });
+                    
+                    this.socket.on('response_chunk', (data) => {
+                        // On first chunk, add the AI message
+                        if (!this.hasReceivedChunk) {
+                            this.hasReceivedChunk = true;
+                            this.messages.push({
+                                id: this.messageId++,
+                                content: data.chunk,
+                                isUser: false
+                            });
+                        } else {
+                            // Update the last AI message with new chunk
+                            const lastMessage = this.messages[this.messages.length - 1];
+                            if (lastMessage && !lastMessage.isUser) {
+                                lastMessage.content += data.chunk;
+                            }
+                        }
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    });
+                    
+                    this.socket.on('response_complete', () => {
+                        this.isStreaming = false;
+                        this.hasReceivedChunk = false;
+                        // Refocus the input when AI response is complete
+                        this.$nextTick(() => {
+                            this.$refs.messageInput.focus();
+                        });
+                    });
+                },
+
+                sendMessage() {
+                    if (!this.currentMessage.trim() || this.isStreaming) return;
+
+                    // Add user message
+                    this.messages.push({
+                        id: this.messageId++,
+                        content: this.currentMessage,
+                        isUser: true
+                    });
+
+                    const userMessage = this.currentMessage;
+                    this.currentMessage = '';
+                    
+                    // Reset textarea height
+                    this.$refs.messageInput.style.height = '64px';
+                    
+                    this.isStreaming = true;
+
+                    // Scroll to bottom
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+
+                    // Send to Flask-SocketIO server
+                    this.socket.emit('message', { message: userMessage });
+                },
+
+                suggestMessage(message) {
+                    this.currentMessage = message;
+                    this.$refs.messageInput.focus();
+                    this.adjustTextareaHeight();
+                },
+
+                clearChat() {
+                    this.messages = [];
+                    this.currentMessage = '';
+                    this.$refs.messageInput.focus();
+                },
+
+                adjustTextareaHeight() {
+                    const textarea = this.$refs.messageInput;
+                    textarea.style.height = 'auto';
+                    textarea.style.height = Math.max(64, textarea.scrollHeight) + 'px';
+                },
+
+                scrollToBottom() {
+                    const container = document.getElementById('messages-container');
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

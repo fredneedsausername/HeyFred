@@ -1,0 +1,12 @@
+- Attach images
+- Attach files
+- Button to stop generation (if you don't like it)
+- Auth
+- It remembers the last 20 messages instead of all of them
+- Separate yielding an error message and a normal message
+- Rework UI
+- dark mode
+- transition from cdns to downloaded dependencies:
+    - divide from single html file to js and css and html
+- un email -> una email
+- edge case: while the response is loading, you hit "cancella"
