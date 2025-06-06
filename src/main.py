@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, session, redirect, url_for
 from flask_socketio import SocketIO, emit
 import os
 from fredcrash import enable_crash_logging
 from dotenv import load_dotenv
 from pathlib import Path
+from openai import OpenAI
+from functools import wraps
 from gevent import monkey   # Leave these two statements at the start else undefined behaviour
 monkey.patch_all()          # Leave these two statements at the start else undefined behaviour
 
@@ -13,28 +15,17 @@ env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
-# Decide app flow based on FLASK_ENV
-match os.getenv('FLASK_ENV'):
-    case 'production':
-        app_debug_mode = False
-        flask_static_folder = None
-    case 'development':
-        app_debug_mode = True
-        flask_static_folder = str(Path(__file__).resolve().parent.parent / "static")
-
-
 # Initialize web app
 flask_template_folder = str(Path(__file__).resolve().parent.parent / "templates")
 
 
-app = Flask(__name__, template_folder=flask_template_folder, static_folder=flask_static_folder)
+app = Flask(__name__, template_folder=flask_template_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 
 socketio = SocketIO(app, async_mode='gevent')
 
 
-from openai import OpenAI
 def generate_llm_response(message):    
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     
@@ -53,6 +44,27 @@ def generate_llm_response(message):
         yield f"Errore durante la generazione: {e}"
 
 
+def authorization_needed(fn):
+    @wraps(fn)
+    def implementation(*args, **kwargs):
+        if 'user' in session:
+            return fn(*args, **kwargs)
+        else:
+            return redirect(url_for('login'))
+    return implementation
+
+
+@app.route('/login')
+def login():
+    pass # IMPLEMENT LOGIN ROUTE AND TEMPLATE
+
+
+@app.route('/logout')
+def logout():
+    pass # IMPLEMENT LOGOUT ROUTE
+
+
+@authorization_needed
 @app.route('/')
 def index():
     return render_template('chat.html')
@@ -90,4 +102,8 @@ if __name__ == '__main__':
     # Enable crash logging for both prod and dev
     enable_crash_logging('..')
 
+    # Determine if debug mode based on FLASK.ENV
+    app_debug_mode = False if os.getenv('FLASK_ENV') == 'production' else True
+
+    # Run the application with gevent
     socketio.run(app, debug=app_debug_mode, host='127.0.0.1', port=int(os.getenv('PORT')))

@@ -8,5 +8,7 @@
 - dark mode
 - transition from cdns to downloaded dependencies:
     - divide from single html file to js and css and html
-- un email -> una email
 - edge case: while the response is loading, you hit "cancella"
+- parallelize app
+- SHIFT + ENTER does not go to newline
+- support for markdown

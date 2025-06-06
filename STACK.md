@@ -7,9 +7,7 @@ Stack:
         - Language: Python
         - Framework: Flask
         - WebSockets: Flask-SocketIO python library
-    - Database:
-        - DBMS: PostgreSQL
-        - Connector: psycopg3
+        - Auth: Cookies
     - Production:
         - API: Gevent for asyncio support for websockets
         - Static Files: Nginx
