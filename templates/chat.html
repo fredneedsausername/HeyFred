@@ -58,7 +58,7 @@
 
         /* Non-special code */
         .message-content code:not(.hljs), .hljs-variable, .hljs-title { color: #000; }
-                
+
     </style>
     
     <style>
@@ -333,7 +333,7 @@
                         <textarea 
                             x-model="currentMessage"
                             x-ref="messageInput"
-                            @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
+                            @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage(); }"
                             @input="adjustTextareaHeight()"
                             placeholder="Cos'hai in mente?"
                             class="w-full resize-none border-2 border-gray-200 rounded-3xl px-5 py-4 focus:outline-none focus:border-black focus:ring-4 focus:ring-black/5 transition-all bg-white shadow-md text-lg text-gray-900 placeholder-gray-500 font-medium overflow-hidden"

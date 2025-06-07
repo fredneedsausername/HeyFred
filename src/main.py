@@ -31,7 +31,10 @@ def generate_llm_response(message):
     try:
         stream = client.chat.completions.create(
             model="gpt-4.1-nano",
-            messages=[{"role": "user", "content": message}],
+            messages=[
+                {"role": "system", "content": "You are Fred, a general purpose LLM"},
+                {"role": "user", "content": message}
+            ],
             stream=True,
         )
         
