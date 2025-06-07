@@ -8,3 +8,4 @@
 - edge case: while the response is loading, you hit "cancella"
 - SHIFT + ENTER does not go to newline
 - support for markdown
+- Create system prompt
