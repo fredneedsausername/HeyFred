@@ -17,11 +17,11 @@
     - may have to change to responses api
 - Button to stop generation (if you don't like it)
 - "&copy" in resulting html. Probably have to consider all possible html escape sequences.
-- when a lot of text is in the text area, it deforms and takes up the whole screen. it shouldn't do that.
+- when a lot of text is in the text area, it deforms and takes up the whole screen. it shouldn't do that. There should be a maximum height for the input text area, and the user should scroll inside it if it gets too big
 
 ** Secondary **
 
 
 - Button to copy the code part of a response
-- focus on text area immediately after sending message instead of waiting for the response to be completed
+- user should be able to write a prompt while the answer is generating, for it to be sent later, and the text area should be focused right after sending the message
 - when you have a single long word it overflows instead of wrapping around

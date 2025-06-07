@@ -474,9 +474,6 @@
                     this.socket.on('response_start', () => {
                         // Just set streaming state, don't add empty message yet
                         this.hasReceivedChunk = false;
-                        this.$nextTick(() => {
-                            this.scrollToBottom();
-                        });
                     });
                     
                     this.socket.on('response_chunk', (data) => {
@@ -498,9 +495,6 @@
                                 lastMessage.renderedContent = this.renderMarkdown(lastMessage.content, false);
                             }
                         }
-                        this.$nextTick(() => {
-                            this.scrollToBottom();
-                        });
                     });
                     
                     this.socket.on('response_complete', () => {
@@ -535,7 +529,6 @@
                     this.currentMessage = '';
                     this.$refs.messageInput.style.height = '64px';
                     this.isStreaming = true;
-                    this.$nextTick(() => { this.scrollToBottom(); });
 
                     // Send the entire history to the Flask-SocketIO server
                     this.socket.emit('message', { history: history });
@@ -557,11 +550,6 @@
                     const textarea = this.$refs.messageInput;
                     textarea.style.height = 'auto';
                     textarea.style.height = Math.max(64, textarea.scrollHeight) + 'px';
-                },
-
-                scrollToBottom() {
-                    const container = document.getElementById('messages-container');
-                    container.scrollTop = container.scrollHeight;
                 }
             }
         }
