@@ -1,8 +1,16 @@
 ** Working on it **
 
 ** Necessary **
-- transition from cdns to downloaded dependencies
 - test purification
+- chatbot does not remember previous messages
+- mardown tables are not properly rendered when in response
+- ~~Strikethrough~~ not properly rendered in response and prompt
+-
+    > This is a blockquote
+    > It can span multiple lines
+    > And contain other formatting like **bold**
+
+    does not span multiple lines
 
 ** Secondary **
 - edge case: while the response is loading, you hit "cancella"

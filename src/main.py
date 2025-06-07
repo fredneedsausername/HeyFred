@@ -17,10 +17,12 @@ load_dotenv(dotenv_path=env_path)
 
 # Initialize web app
 flask_template_folder = str(Path(__file__).resolve().parent.parent / "templates")
+flask_static_folder = str(Path(__file__).resolve().parent.parent / "static")
 
 
-app = Flask(__name__, template_folder=flask_template_folder)
+app = Flask(__name__, template_folder=flask_template_folder, static_folder=flask_static_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+
 
 socketio = SocketIO(app, async_mode="gevent")
 
@@ -32,7 +34,6 @@ def generate_llm_response(message):
         stream = client.chat.completions.create(
             model="gpt-4.1-nano",
             messages=[
-                {"role": "system", "content": "You are Fred, a general purpose LLM"},
                 {"role": "user", "content": message}
             ],
             stream=True,
