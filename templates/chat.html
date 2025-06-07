@@ -244,18 +244,12 @@
              class="px-4 py-3 warning-pulse">
             <div class="max-w-5xl mx-auto">
                 <div class="flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" 
-                         :class="chatLimitReached ? 'text-red-500' : 'text-yellow-500'"
-                         fill="currentColor" viewBox="0 0 20 20">
-                        <path x-show="!chatLimitReached" fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                        <path x-show="chatLimitReached" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
                     <span :class="chatLimitReached ? 'text-red-800' : 'text-yellow-800'" class="font-medium">
                         <span x-show="!chatLimitReached">
-                            Attenzione: Ti rimangono <span class="font-bold" x-text="messagesUntilLimit"></span> messaggi prima del limite
+                            La chat si fa lunga. Ne dovrai iniziare una nuova fra <span class="font-bold" x-text="messagesUntilLimit"></span> messaggi
                         </span>
                         <span x-show="chatLimitReached">
-                            Limite di messaggi raggiunto. Puoi solo visualizzare questa conversazione.
+                            Una chat per argomento aiuta il modello a non confondersi. E' il momento di cancellare questa.
                         </span>
                     </span>
                 </div>
@@ -541,12 +535,6 @@
                         this.isStreaming = false;
                         this.hasReceivedChunk = false;
                         
-                        // Check if we've reached the hard limit after AI responds
-                        if (this.userMessageCount >= this.hardLimit) {
-                            this.chatLimitReached = true;
-                            this.showWarningBanner = false;
-                        }
-                        
                         // Refocus the input when AI response is complete (only if not at limit)
                         if (!this.chatLimitReached) {
                             this.$nextTick(() => {
@@ -571,17 +559,11 @@
                     };
                     this.messages.push(userMessage);
 
-                    // Check if we should show warning banner
+                    // Check if we should show warning banner (before reaching hard limit)
                     if (this.userMessageCount >= this.warningLimit && this.userMessageCount < this.hardLimit) {
                         this.showWarningBanner = true;
-                    }
-
-                    // Don't send to server if we've reached the hard limit
-                    if (this.userMessageCount >= this.hardLimit) {
-                        // Clear the input
-                        this.currentMessage = '';
-                        this.$refs.messageInput.style.height = '64px';
-                        return; // Don't send to server, let the user see their message but get no response
+                    } else {
+                        this.showWarningBanner = false;
                     }
 
                     // Prepare a simplified history to send to the backend
@@ -597,6 +579,12 @@
 
                     // Send the entire history to the Flask-SocketIO server
                     this.socket.emit('message', { history: history });
+
+                    // Check if we've reached the hard limit after sending
+                    if (this.userMessageCount >= this.hardLimit) {
+                        this.chatLimitReached = true;
+                        this.showWarningBanner = false;
+                    }
                 },
 
                 suggestMessage(message) {
@@ -612,6 +600,8 @@
                     this.userMessageCount = 0;
                     this.showWarningBanner = false;
                     this.chatLimitReached = false;
+                    this.isStreaming = false;
+                    this.hasReceivedChunk = false;
                     this.$refs.messageInput?.focus();
                 },
 
