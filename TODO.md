@@ -1,6 +1,8 @@
 ** Working on it **
 
 ** Necessary **
+
+- test if web search is there
 - test markdown
     - mardown tables are not properly rendered when in response
     - ~~Strikethrough~~ not properly rendered in response and prompt
@@ -11,6 +13,7 @@
 
         does not span multiple lines
 - complete tests
+- timer of 6 hours that resets the chat
 
 ** Secondary **
 - edge case: while the response is loading, you hit "cancella" (it should also stop the generation)
@@ -20,6 +23,7 @@
 - less margin on mobile to see more text
 - Attach images
 - Attach files
+    - may have to change to responses api
 - Button to stop generation (if you don't like it)
 - Button to copy the code part of a response
 - Remove any reference to a dark theme

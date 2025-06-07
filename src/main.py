@@ -29,12 +29,28 @@ socketio = SocketIO(app, async_mode="gevent")
 
 def generate_llm_response(history):    
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+    system_prompt = {
+        "role": "system",
+        "content": "You are Fred, a highly efficient AI assistant. You must follow the user's instructions precisely and literally. Your responses should be concise and directly address the user's request without unnecessary elaboration. If writing code, follow best practices."
+    }
+
+    # DO NOT WRITE THIS: history += [system_prompt] BECAUSE THE SYSTEM PROMPT HAS TO BE THE FIRST
+    history = [system_prompt] + history # KEEP THIS ORDER
+
     
     try:
         stream = client.chat.completions.create(
-            model="gpt-4.1-nano",
-            messages=history,
-            stream=True,
+            model="gpt-4.1-nano",   # Name of the generating model
+            messages=history,       # Messages to respond to
+            stream=True,            # Stream response as it forms
+            temperature=0,          # More deterministic for coding
+            n=1,                    # One response per prompt
+            presence_penalty=0,     # No bias towards repeated tokens
+            frequency_penalty=0,    # No bias towards frequency of tokens
+            tools=None,             # Disable tool calling
+            modalities=['text'],    # Limit model to generating text
+            prediction=None,        # No response template 
         )
         
         for chunk in stream:
