@@ -25,3 +25,13 @@
 - Button to copy the code part of a response
 - user should be able to write a prompt while the answer is generating, for it to be sent later, and the text area should be focused right after sending the message
 - when you have a single long word it overflows instead of wrapping around
+- cancella does not eliminate the text in the input text area
+
+** Deploy **
+- Remove certificate for chat.fredver.it
+- register record A for heyfred.fredver.it
+- get certificate for heyfred.fredver.it
+- remove configuration of nginx for chat.fredver.it
+- write configuration of nginx for heyfred.fredver.it
+- set up .env in deploy server
+- set up systemd service for chat app

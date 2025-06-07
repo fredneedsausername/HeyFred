@@ -17,10 +17,9 @@ load_dotenv(dotenv_path=env_path)
 
 # Initialize web app
 flask_template_folder = str(Path(__file__).resolve().parent.parent / "templates")
-flask_static_folder = str(Path(__file__).resolve().parent.parent / "static")
 
 
-app = Flask(__name__, template_folder=flask_template_folder, static_folder=flask_static_folder)
+app = Flask(__name__, template_folder=flask_template_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 
