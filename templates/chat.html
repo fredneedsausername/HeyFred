@@ -280,17 +280,17 @@
                     <div class="text-xl text-gray-600 mb-6 max-w-lg mx-auto hidden md:block">Sono Fred, la tua IA veloce. Come posso aiutarti oggi?</div>
                     <div class="text-lg text-gray-600 mb-6 max-w-lg mx-auto md:hidden">Come posso aiutarti?</div>
                     <div class="flex flex-wrap justify-center gap-4">
-                        <button @click="suggestMessage('Spiegami come funziona l\'intelligenza artificiale')" 
+                        <button @click="suggestMessage('Spiegami nel dettaglio la teoria dell\'evoluzione di Charles Darwin')" 
                                 class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
-                            Cos'è l'IA?
+                            Scienza
                         </button>
-                        <button @click="suggestMessage('Aiutami a scrivere un\'email professionale')" 
+                        <button @click="suggestMessage('Spiegami nel dettaglio la filosofia di Platone')" 
                                 class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
-                            Scrivi email
+                            Filosofia
                         </button>
                         <button @click="suggestMessage('Scrivi una funzione in Python per il bubble sort di un array di interi')" 
                                 class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
-                            Scrivi codice
+                            Codice
                         </button>
                     </div>
                 </div>
@@ -558,6 +558,18 @@
                     });
                 },
 
+                scrollToBottom() {
+                    this.$nextTick(() => {
+                        const messagesContainer = document.getElementById('messages-container');
+                        if (messagesContainer) {
+                            messagesContainer.scrollTo({
+                                top: messagesContainer.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                },
+
                 sendMessage() {
                     if (!this.currentMessage.trim() || this.isStreaming || this.chatLimitReached) return;
 
@@ -572,6 +584,8 @@
                         isUser: true
                     };
                     this.messages.push(userMessage);
+
+                    this.scrollToBottom();
 
                     // Check if we should show warning banner (before reaching hard limit)
                     if (this.userMessageCount >= this.warningLimit && this.userMessageCount < this.hardLimit) {

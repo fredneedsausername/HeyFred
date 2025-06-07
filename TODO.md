@@ -5,7 +5,7 @@
 - suggestions overflow on mobile without resizing of window text area
 - on mobile the markdown for code overflows, instead it should stay in the margins of the normal chat bubbles and be able to be scrollable.
 - more readable font for code
-- Hello! Only and ever only when the message is sent, i want the page to be scrolled to the bottom. In no other situation there is ever a scroll-to-the-bottom behaviour.
+- clean up comments
 
 ** Secondary **
 
