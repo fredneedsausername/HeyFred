@@ -132,9 +132,23 @@
             margin: 0.75em 0;
             padding-left: 1.5em;
         }
-        
+
+        .message-content ul {
+            list-style-type: disc;
+        }
+
+        .message-content ol {
+            list-style-type: decimal;
+        }
+
         .message-content li {
             margin: 0.25em 0;
+            display: list-item;
+        }
+
+        .message-content del,
+        .message-content s {
+            text-decoration: line-through;
         }
         
         .message-content blockquote {
