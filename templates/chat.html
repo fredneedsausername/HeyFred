@@ -335,15 +335,15 @@
                 <div class="grid grid-cols-[1fr_auto] gap-4 items-center">
                     <div class="relative">
                         <textarea 
-                            x-model="currentMessage"
-                            x-ref="messageInput"
-                            @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage(); }"
-                            @input="adjustTextareaHeight()"
-                            placeholder="Cos'hai in mente?"
-                            class="w-full resize-none border-2 border-gray-200 rounded-3xl px-5 py-4 focus:outline-none focus:border-black focus:ring-4 focus:ring-black/5 transition-all bg-white shadow-md text-lg text-gray-900 placeholder-gray-500 font-medium overflow-hidden"
-                            rows="1"
-                            :disabled="isStreaming"
-                            style="min-height: 64px;"></textarea>
+                        x-model="currentMessage"
+                        x-ref="messageInput"
+                        @keydown.enter="if(!$event.shiftKey) { $event.preventDefault(); sendMessage(); }"
+                        @input="adjustTextareaHeight()"
+                        placeholder="Cos'hai in mente?"
+                        class="w-full resize-none border-2 border-gray-200 rounded-3xl px-5 py-4 focus:outline-none focus:border-black focus:ring-4 focus:ring-black/5 transition-all bg-white shadow-md text-lg text-gray-900 placeholder-gray-500 font-medium"
+                        rows="1"
+                        :disabled="isStreaming"
+                        style="min-height: 64px; max-height: 30vh;"></textarea>
                     </div>
                     
                     <button 
