@@ -18,20 +18,13 @@
 - Button to stop generation (if you don't like it)
 - "&copy" in resulting html. Probably have to consider all possible html escape sequences.
 - when a lot of text is in the text area, it deforms and takes up the whole screen. it shouldn't do that. There should be a maximum height for the input text area, and the user should scroll inside it if it gets too big
+- only and ever only when the message is sent, the page is scrolled to the bottom. In no other situation there is ever a scroll-to-the-bottom behaviour
 
 ** Secondary **
-
 
 - Button to copy the code part of a response
 - user should be able to write a prompt while the answer is generating, for it to be sent later, and the text area should be focused right after sending the message
 - when you have a single long word it overflows instead of wrapping around
 - cancella does not eliminate the text in the input text area
-
-** Deploy **
-- Remove certificate for chat.fredver.it
-- register record A for heyfred.fredver.it
-- get certificate for heyfred.fredver.it
-- remove configuration of nginx for chat.fredver.it
-- write configuration of nginx for heyfred.fredver.it
-- set up .env in deploy server
-- set up systemd service for chat app
+- change css code in the chat html page to use tailwind where possible
+- change js code in the chat html page to use alpine where possible

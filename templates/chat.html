@@ -82,6 +82,11 @@
             40% { transform: scale(1); opacity: 1; }
         }
         
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
         .fade-in-up { animation: fadeInUp 0.6s ease-out; }
         .slide-in-left { animation: slideInLeft 0.4s ease-out; }
         .slide-in-right { animation: slideInRight 0.4s ease-out; }
@@ -92,6 +97,10 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+        .warning-pulse {
+            animation: pulse 2s infinite;
+        }
 
         .message-content {
             line-height: 1.6;
@@ -229,6 +238,30 @@
             </div>
         </div>
 
+        <!-- Chat Limit Banner -->
+        <div x-show="!showIntro && (showWarningBanner || chatLimitReached)" 
+             :class="chatLimitReached ? 'bg-red-50 border-b border-red-200' : 'bg-yellow-50 border-b border-yellow-200'"
+             class="px-4 py-3 warning-pulse">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" 
+                         :class="chatLimitReached ? 'text-red-500' : 'text-yellow-500'"
+                         fill="currentColor" viewBox="0 0 20 20">
+                        <path x-show="!chatLimitReached" fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        <path x-show="chatLimitReached" fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span :class="chatLimitReached ? 'text-red-800' : 'text-yellow-800'" class="font-medium">
+                        <span x-show="!chatLimitReached">
+                            Attenzione: Ti rimangono <span class="font-bold" x-text="messagesUntilLimit"></span> messaggi prima del limite
+                        </span>
+                        <span x-show="chatLimitReached">
+                            Limite di messaggi raggiunto. Puoi solo visualizzare questa conversazione.
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <!-- Messages Area -->
         <div x-show="!showIntro" class="flex-1 overflow-y-auto py-4" id="messages-container">
             <div class="max-w-5xl mx-auto px-8">
@@ -288,8 +321,8 @@
             </div>
         </div>
 
-        <!-- Input Area -->
-        <div x-show="!showIntro" class="border-t border-gray-200 bg-white shadow-lg p-8">
+        <!-- Input Area - Only show if chat limit not reached -->
+        <div x-show="!showIntro && !chatLimitReached" class="border-t border-gray-200 bg-white shadow-lg p-8">
             <form @submit.prevent="sendMessage()" class="max-w-5xl mx-auto">
                 <div class="grid grid-cols-[1fr_auto] gap-4 items-center">
                     <div class="relative">
@@ -322,6 +355,10 @@
     <script>
         function chatApp() {
             return {
+                // Chat limit configuration - easily changeable for testing
+                warningLimit: 2,  // Show warning after this many user messages
+                hardLimit: 3,    // Block sending after this many user messages
+                
                 showIntro: true,
                 messages: [],
                 currentMessage: '',
@@ -330,6 +367,9 @@
                 socket: null,
                 messageId: 0,
                 md: null,
+                userMessageCount: 0,
+                showWarningBanner: false,
+                chatLimitReached: false,
 
                 init() {
                     // Hide intro after 250ms
@@ -345,6 +385,10 @@
 
                     // Initialize WebSocket connection
                     this.initSocket();
+                },
+
+                get messagesUntilLimit() {
+                    return this.hardLimit - this.userMessageCount;
                 },
 
                 waitForLibrariesAndInit() {
@@ -496,15 +540,27 @@
                     this.socket.on('response_complete', () => {
                         this.isStreaming = false;
                         this.hasReceivedChunk = false;
-                        // Refocus the input when AI response is complete
-                        this.$nextTick(() => {
-                            this.$refs.messageInput.focus();
-                        });
+                        
+                        // Check if we've reached the hard limit after AI responds
+                        if (this.userMessageCount >= this.hardLimit) {
+                            this.chatLimitReached = true;
+                            this.showWarningBanner = false;
+                        }
+                        
+                        // Refocus the input when AI response is complete (only if not at limit)
+                        if (!this.chatLimitReached) {
+                            this.$nextTick(() => {
+                                this.$refs.messageInput?.focus();
+                            });
+                        }
                     });
                 },
 
                 sendMessage() {
-                    if (!this.currentMessage.trim() || this.isStreaming) return;
+                    if (!this.currentMessage.trim() || this.isStreaming || this.chatLimitReached) return;
+
+                    // Increment user message count
+                    this.userMessageCount++;
 
                     // Add user message to the local array first
                     const userMessage = {
@@ -514,6 +570,19 @@
                         isUser: true
                     };
                     this.messages.push(userMessage);
+
+                    // Check if we should show warning banner
+                    if (this.userMessageCount >= this.warningLimit && this.userMessageCount < this.hardLimit) {
+                        this.showWarningBanner = true;
+                    }
+
+                    // Don't send to server if we've reached the hard limit
+                    if (this.userMessageCount >= this.hardLimit) {
+                        // Clear the input
+                        this.currentMessage = '';
+                        this.$refs.messageInput.style.height = '64px';
+                        return; // Don't send to server, let the user see their message but get no response
+                    }
 
                     // Prepare a simplified history to send to the backend
                     const history = this.messages.map(msg => ({
@@ -531,21 +600,28 @@
                 },
 
                 suggestMessage(message) {
+                    if (this.chatLimitReached) return;
                     this.currentMessage = message;
-                    this.$refs.messageInput.focus();
+                    this.$refs.messageInput?.focus();
                     this.adjustTextareaHeight();
                 },
 
                 clearChat() {
                     this.messages = [];
                     this.currentMessage = '';
-                    this.$refs.messageInput.focus();
+                    this.userMessageCount = 0;
+                    this.showWarningBanner = false;
+                    this.chatLimitReached = false;
+                    this.$refs.messageInput?.focus();
                 },
 
                 adjustTextareaHeight() {
+                    if (this.chatLimitReached) return;
                     const textarea = this.$refs.messageInput;
-                    textarea.style.height = 'auto';
-                    textarea.style.height = Math.max(64, textarea.scrollHeight) + 'px';
+                    if (textarea) {
+                        textarea.style.height = 'auto';
+                        textarea.style.height = Math.max(64, textarea.scrollHeight) + 'px';
+                    }
                 }
             }
         }
