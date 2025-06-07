@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.7/purify.min.js"></script>
     
-    <!-- Basic highlight.js (we'll override colors with custom CSS) -->
+    <!-- Basic highlight.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
     
     <style>
@@ -93,7 +93,6 @@
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         .typing-dot:nth-child(3) { animation-delay: 0s; }
 
-        /* Enhanced markdown styling */
         .message-content {
             line-height: 1.6;
         }
@@ -143,6 +142,7 @@
             border-radius: 0.25em;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 0.875em;
+            color: #000;
         }
         
         .message-content pre {
@@ -200,38 +200,6 @@
             border-top: 1px solid #e5e7eb;
             margin: 1.5em 0;
         }
-        
-        /* Dark theme for user messages */
-        .message-content.dark-theme code {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #e5e7eb;
-        }
-        
-        .message-content.dark-theme pre {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .message-content.dark-theme blockquote {
-            border-left-color: rgba(255, 255, 255, 0.3);
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        .message-content.dark-theme th, .message-content.dark-theme td {
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .message-content.dark-theme th {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .message-content.dark-theme a {
-            color: #93c5fd;
-        }
-        
-        .message-content.dark-theme a:hover {
-            color: #bfdbfe;
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
@@ -250,17 +218,17 @@
 
         <!-- Header -->
         <div x-show="!showIntro" class="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10 relative">
-            <!-- Desktop Cancella button - positioned at extreme left -->
+            <!-- Desktop Cancella button -->
             <button @click="clearChat()" class="hidden md:block absolute left-16 top-1/2 transform -translate-y-1/2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-base font-medium z-20">Cancella</button>
             
             <div class="max-w-5xl mx-auto px-8 py-6">
-                <!-- Mobile layout (original) -->
+                <!-- Mobile layout -->
                 <div class="flex items-center justify-between md:hidden">
                     <div class="text-3xl font-semibold text-black tracking-tight">HeyFred</div>
                     <button @click="clearChat()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-base font-medium">Cancella</button>
                 </div>
                 
-                <!-- Desktop layout (modified) -->
+                <!-- Desktop layout -->
                 <div class="hidden md:flex items-center justify-center">
                     <div class="text-3xl font-semibold text-black tracking-tight">HeyFred</div>
                 </div>
@@ -297,11 +265,10 @@
                             <div class="max-w-4xl">
                                 <!-- Message Content -->
                                 <div :class="message.isUser ? 
-                                    'bg-black text-white rounded-2xl rounded-tr-sm px-4 py-3 shadow-lg text-base' : 
-                                    'bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm text-base'">
-                                    <div x-html="message.renderedContent" 
-                                         class="message-content" 
-                                         :class="message.isUser ? 'dark-theme' : ''"></div>
+                                    'rounded-2xl rounded-tr-sm px-4 py-3 shadow-lg text-base text-gray-900' : 
+                                    'bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm text-base text-gray-900'"
+                                     :style="message.isUser ? 'background-color: #e1ffd4;' : ''">
+                                    <div x-html="message.renderedContent" class="message-content"></div>
                                 </div>
                             </div>
                         </div>

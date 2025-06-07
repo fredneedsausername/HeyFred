@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 from openai import OpenAI
 from functools import wraps
-from gevent import monkey   # Leave these two statements at the start else undefined behaviour
-monkey.patch_all()          # Leave these two statements at the start else undefined behaviour
+from gevent import monkey   # Leave these two lines at the end of the imports else undefined behaviour
+monkey.patch_all()          # Leave these two lines at the end of the imports else undefined behaviour
 
 
 # Load environment variables into the program
@@ -32,7 +32,7 @@ def generate_llm_response(history):
 
     system_prompt = {
         "role": "system",
-        "content": "You are Fred, a highly efficient AI assistant. You must follow the user's instructions precisely and literally. Your responses should be concise and directly address the user's request without unnecessary elaboration. If writing code, follow best practices."
+        "content": "You are Fred, an LLM."
     }
 
     # DO NOT WRITE THIS: history += [system_prompt] BECAUSE THE SYSTEM PROMPT HAS TO BE THE FIRST
