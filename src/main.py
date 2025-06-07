@@ -27,15 +27,13 @@ app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app, async_mode="gevent")
 
 
-def generate_llm_response(message):    
+def generate_llm_response(history):    
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     
     try:
         stream = client.chat.completions.create(
             model="gpt-4.1-nano",
-            messages=[
-                {"role": "user", "content": message}
-            ],
+            messages=history,
             stream=True,
         )
         
@@ -137,14 +135,14 @@ def on_disconnect():
 @socketio.on('message')
 @authentication_needed
 def handle_message(data):
-    user_message = data['message']
+    # Get chat history
+    history = data['history']
     
-    # Start streaming response
     emit('response_start')
     
     try:
-        # Generate and stream LLM response
-        for chunk in generate_llm_response(user_message):
+        # Generate and stream LLM response using the full history
+        for chunk in generate_llm_response(history):
             emit('response_chunk', {'chunk': chunk})
             socketio.sleep(0) # Let socketio manage other connections/events
         

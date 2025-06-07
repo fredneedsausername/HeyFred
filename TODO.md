@@ -1,19 +1,19 @@
 ** Working on it **
 
 ** Necessary **
-- test purification
-- chatbot does not remember previous messages
-- mardown tables are not properly rendered when in response
-- ~~Strikethrough~~ not properly rendered in response and prompt
--
-    > This is a blockquote
-    > It can span multiple lines
-    > And contain other formatting like **bold**
+- test markdown
+    - mardown tables are not properly rendered when in response
+    - ~~Strikethrough~~ not properly rendered in response and prompt
+    -
+        > This is a blockquote
+        > It can span multiple lines
+        > And contain other formatting like **bold**
 
-    does not span multiple lines
+        does not span multiple lines
+- complete tests
 
 ** Secondary **
-- edge case: while the response is loading, you hit "cancella"
+- edge case: while the response is loading, you hit "cancella" (it should also stop the generation)
 - answer that is generating does not force user to the bottom of the page
 - on mobile the markdown for code overflows
 - more readable font for code
