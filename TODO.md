@@ -2,7 +2,7 @@
 
 ** Necessary **
 
-- suggestions overflow on mobile without resizing of window text area
+- 
 - on mobile the markdown for code overflows, instead it should stay in the margins of the normal chat bubbles and be able to be scrollable.
 - more readable font for code
 - clean up comments

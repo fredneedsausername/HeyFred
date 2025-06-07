@@ -618,8 +618,10 @@
                 suggestMessage(message) {
                     if (this.chatLimitReached) return;
                     this.currentMessage = message;
-                    this.$refs.messageInput?.focus();
-                    this.adjustTextareaHeight();
+                    this.$nextTick(() => {
+                        this.$refs.messageInput?.focus();
+                        this.adjustTextareaHeight();
+                    });
                 },
 
                 clearChat() {
