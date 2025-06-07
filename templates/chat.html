@@ -8,6 +8,64 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    
+    <!-- Markdown and syntax highlighting libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.7/purify.min.js"></script>
+    
+    <!-- Basic highlight.js (we'll override colors with custom CSS) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    
+    <style>
+        /* Custom VS Code-like syntax highlighting theme */
+        .hljs {
+            color: #d4d4d4 !important;
+            border-radius: 0.5rem;
+            padding: 1rem !important;
+            font-family: 'Monaco', 'Menlo', 'Consolas', 'Ubuntu Mono', monospace !important;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        
+        /* Keywords (if, else, def, class, etc.) */
+        .hljs-keyword { color: #A626A4 !important; }
+        
+        /* Strings, CSS Attributes, CSS Properties, RegEx */
+        .hljs-string, .hljs-attr, .hljs-attribute, .hljs-regexp { color: #50A14F !important; }
+        
+        /* Numbers, CSS Selector */
+        .hljs-number, .hljs-selector-class { color: #986801 !important; }
+        
+        /* Comments */
+        .hljs-comment { color: #A0A1A7 !important; font-style: italic; }
+
+        /* Built-ins */
+        .hljs-built_in { color: #C18401 !important; }
+        
+        /* Types and classes */
+        .hljs-type, .hljs-class { color: #4078F2 !important; }
+
+        /* HTML/XML/CSS tags */
+        .hljs-name, .hljs-selector-tag { color: #E76F64 !important; }
+        
+        /* CSS selectors and properties */
+        .hljs-selector-id { color: #4078F2 !important; }
+
+        /* Disable bold text for code */
+        .hljs-title { font-weight: inherit !important; }
+
+        /* Non-special code */
+        .message-content code:not(.hljs), .hljs-variable, .hljs-title { color: #000; }
+
+        /* - - - - - - - - */
+        
+        /* JSON */
+        .hljs-value { color: #ce9178 !important; }
+        
+    </style>
+    
     <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
@@ -39,6 +97,146 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         .typing-dot:nth-child(3) { animation-delay: 0s; }
+
+        /* Enhanced markdown styling */
+        .message-content {
+            line-height: 1.6;
+        }
+        
+        .message-content h1, .message-content h2, .message-content h3, 
+        .message-content h4, .message-content h5, .message-content h6 {
+            margin: 1em 0 0.5em 0;
+            font-weight: 600;
+        }
+        
+        .message-content h1 { font-size: 1.5em; }
+        .message-content h2 { font-size: 1.3em; }
+        .message-content h3 { font-size: 1.1em; }
+        
+        .message-content p {
+            margin: 0.75em 0;
+        }
+        
+        .message-content p:first-child {
+            margin-top: 0;
+        }
+        
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .message-content ul, .message-content ol {
+            margin: 0.75em 0;
+            padding-left: 1.5em;
+        }
+        
+        .message-content li {
+            margin: 0.25em 0;
+        }
+        
+        .message-content blockquote {
+            border-left: 4px solid #e5e7eb;
+            padding-left: 1em;
+            margin: 1em 0;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .message-content code {
+            background-color: #F9F9F9;
+            padding: 0.125em 0.25em;
+            border-radius: 0.25em;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875em;
+        }
+        
+        .message-content pre {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5em;
+            padding: 1em;
+            margin: 1em 0;
+            overflow-x: auto;
+        }
+        
+        .message-content pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: 0.875em;
+        }
+        
+        .message-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+        
+        .message-content th, .message-content td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5em;
+            text-align: left;
+        }
+        
+        .message-content th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .message-content a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        
+        .message-content a:hover {
+            color: #1d4ed8;
+        }
+        
+        .message-content strong {
+            font-weight: 600;
+        }
+        
+        .message-content em {
+            font-style: italic;
+        }
+        
+        .message-content hr {
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 1.5em 0;
+        }
+        
+        /* Dark theme for user messages */
+        .message-content.dark-theme code {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #e5e7eb;
+        }
+        
+        .message-content.dark-theme pre {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .message-content.dark-theme blockquote {
+            border-left-color: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .message-content.dark-theme th, .message-content.dark-theme td {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .message-content.dark-theme th {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .message-content.dark-theme a {
+            color: #93c5fd;
+        }
+        
+        .message-content.dark-theme a:hover {
+            color: #bfdbfe;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
@@ -90,9 +288,9 @@
                                 class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
                             Scrivi email
                         </button>
-                        <button @click="suggestMessage('Dammi 5 idee creative per il weekend')" 
+                        <button @click="suggestMessage('Scrivi una funzione in Python per il bubble sort di un array di interi')" 
                                 class="px-6 py-3 bg-white border border-gray-200 rounded-full text-base text-gray-700 hover:border-gray-300 hover:shadow-sm transition-all">
-                            Idee weekend
+                            Scrivi codice
                         </button>
                     </div>
                 </div>
@@ -106,8 +304,9 @@
                                 <div :class="message.isUser ? 
                                     'bg-black text-white rounded-2xl rounded-tr-sm px-4 py-3 shadow-lg text-base' : 
                                     'bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm text-base'">
-                                    <div x-html="message.content" class="prose prose-base max-w-none" 
-                                         :class="message.isUser ? 'prose-invert' : ''"></div>
+                                    <div x-html="message.renderedContent" 
+                                         class="message-content" 
+                                         :class="message.isUser ? 'dark-theme' : ''"></div>
                                 </div>
                             </div>
                         </div>
@@ -172,6 +371,7 @@
                 hasReceivedChunk: false,
                 socket: null,
                 messageId: 0,
+                md: null,
 
                 init() {
                     // Hide intro after 250ms
@@ -182,8 +382,123 @@
                         });
                     }, 250);
 
+                    // Initialize markdown when DOM is ready and libraries are loaded
+                    this.waitForLibrariesAndInit();
+
                     // Initialize WebSocket connection
                     this.initSocket();
+                },
+
+                waitForLibrariesAndInit() {
+                    // Check if libraries are already available
+                    if (this.checkLibrariesLoaded()) {
+                        this.initMarkdown();
+                        return;
+                    }
+
+                    // Wait for window load event to ensure all scripts are loaded
+                    if (document.readyState === 'complete') {
+                        setTimeout(() => this.tryInitMarkdown(), 200);
+                    } else {
+                        window.addEventListener('load', () => {
+                            setTimeout(() => this.tryInitMarkdown(), 200);
+                        });
+                    }
+                },
+
+                checkLibrariesLoaded() {
+                    const markdownItLoaded = typeof window.markdownit !== 'undefined';
+                    const hljsLoaded = typeof window.hljs !== 'undefined';
+                    const dompurifyLoaded = typeof window.DOMPurify !== 'undefined';
+                    
+                    console.log('Library status:', {
+                        'markdown-it': markdownItLoaded,
+                        'highlight.js': hljsLoaded,
+                        'DOMPurify': dompurifyLoaded
+                    });
+                    
+                    return markdownItLoaded && hljsLoaded && dompurifyLoaded;
+                },
+
+                tryInitMarkdown() {
+                    if (this.checkLibrariesLoaded()) {
+                        this.initMarkdown();
+                    } else {
+                        console.warn('Markdown libraries failed to load from CDN. App will work with plain text.');
+                        this.md = null;
+                    }
+                },
+
+                initMarkdown() {
+                    try {
+                        // Initialize markdown-it with syntax highlighting
+                        this.md = window.markdownit({
+                            html: false, // Disable HTML for security
+                            linkify: true,
+                            typographer: true,
+                            highlight: function (str, lang) {
+                                if (lang && window.hljs.getLanguage(lang)) {
+                                    try {
+                                        return window.hljs.highlight(str, { language: lang }).value;
+                                    } catch (__) {}
+                                }
+                                return ''; // use external default escaping
+                            }
+                        });
+                        console.log('Markdown support enabled');
+                    } catch (error) {
+                        console.error('Error initializing markdown:', error);
+                        this.md = null;
+                    }
+                },
+
+                renderMarkdown(content, isUser = false) {
+                    try {
+                        // If markdown isn't initialized yet, return escaped plain text
+                        if (!this.md) {
+                            return this.escapeHtml(content);
+                        }
+                        
+                        // Check if DOMPurify is available
+                        if (typeof window.DOMPurify === 'undefined') {
+                            console.warn('DOMPurify not available, using escaped text');
+                            return this.escapeHtml(content);
+                        }
+                        
+                        // Render markdown to HTML
+                        const rendered = this.md.render(content);
+                        
+                        // Purify the HTML to prevent XSS attacks
+                        const purified = window.DOMPurify.sanitize(rendered, {
+                            ALLOWED_TAGS: [
+                                'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                                'p', 'br', 'strong', 'em', 'u', 'code', 'pre',
+                                'ul', 'ol', 'li', 'blockquote', 'hr',
+                                'table', 'thead', 'tbody', 'tr', 'th', 'td',
+                                'a', 'span'
+                            ],
+                            ALLOWED_ATTR: ['href', 'class', 'target', 'rel'],
+                            ALLOW_DATA_ATTR: false,
+                            ADD_ATTR: ['target'],
+                            FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed'],
+                            FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'style']
+                        });
+                        
+                        return purified;
+                    } catch (error) {
+                        console.error('Error rendering markdown:', error);
+                        // Fallback to escaped plain text
+                        return this.escapeHtml(content);
+                    }
+                },
+
+                escapeHtml(unsafe) {
+                    return unsafe
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#039;");
                 },
 
                 initSocket() {
@@ -206,16 +521,19 @@
                         // On first chunk, add the AI message
                         if (!this.hasReceivedChunk) {
                             this.hasReceivedChunk = true;
-                            this.messages.push({
+                            const newMessage = {
                                 id: this.messageId++,
                                 content: data.chunk,
+                                renderedContent: this.renderMarkdown(data.chunk, false),
                                 isUser: false
-                            });
+                            };
+                            this.messages.push(newMessage);
                         } else {
                             // Update the last AI message with new chunk
                             const lastMessage = this.messages[this.messages.length - 1];
                             if (lastMessage && !lastMessage.isUser) {
                                 lastMessage.content += data.chunk;
+                                lastMessage.renderedContent = this.renderMarkdown(lastMessage.content, false);
                             }
                         }
                         this.$nextTick(() => {
@@ -237,13 +555,15 @@
                     if (!this.currentMessage.trim() || this.isStreaming) return;
 
                     // Add user message
-                    this.messages.push({
+                    const userMessage = {
                         id: this.messageId++,
                         content: this.currentMessage,
+                        renderedContent: this.renderMarkdown(this.currentMessage, true),
                         isUser: true
-                    });
+                    };
+                    this.messages.push(userMessage);
 
-                    const userMessage = this.currentMessage;
+                    const messageText = this.currentMessage;
                     this.currentMessage = '';
                     
                     // Reset textarea height
@@ -257,7 +577,7 @@
                     });
 
                     // Send to Flask-SocketIO server
-                    this.socket.emit('message', { message: userMessage });
+                    this.socket.emit('message', { message: messageText });
                 },
 
                 suggestMessage(message) {

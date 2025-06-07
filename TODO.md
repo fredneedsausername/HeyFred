@@ -9,3 +9,9 @@
 - SHIFT + ENTER does not go to newline
 - support for markdown
 - Create system prompt
+- Button to copy the code part of a response
+- Remove any reference to a dark theme
+- focus on text area immediately after sending message instead of waiting for the response to be completed
+- answer that is generating does not force user to the bottom of the page
+- &copy in resulting html. Probably have to consider all possible html escape sequences.
+- on mobile the markdown for code overflows

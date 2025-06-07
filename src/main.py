@@ -22,7 +22,6 @@ flask_template_folder = str(Path(__file__).resolve().parent.parent / "templates"
 app = Flask(__name__, template_folder=flask_template_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
-
 socketio = SocketIO(app, async_mode="gevent")
 
 
