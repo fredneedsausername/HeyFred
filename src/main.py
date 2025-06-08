@@ -172,13 +172,9 @@ def handle_message(data):
     except Exception as e:
         emit('response_error', {'error': f'{e}'})
 
+# Enable crash logging for both prod and dev
+enable_crash_logging('..')
 
 if __name__ == '__main__':
-    # Enable crash logging for both prod and dev
-    enable_crash_logging('..')
-
-    # Determine if debug mode based on FLASK_ENV
-    app_debug_mode = False if os.getenv('FLASK_ENV') == 'production' else True
-
     # Run the application with gevent
-    socketio.run(app, debug=app_debug_mode, host='127.0.0.1', port=int(os.getenv('PORT')))
+    socketio.run(app, debug=True, host='127.0.0.1', port=int(os.getenv('PORT')))
