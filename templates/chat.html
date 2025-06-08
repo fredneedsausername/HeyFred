@@ -227,7 +227,7 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
-    <div x-data="chatApp()" class="min-h-screen grid" style="grid-template-rows: auto 1fr auto;">
+    <div x-data="chatApp()" class="min-h-screen flex flex-col">
         <!-- Intro Animation -->
         <div x-show="showIntro" 
              x-transition:leave="transition ease-in duration-500"
@@ -331,7 +331,7 @@
         </div>
 
         <!-- Input Area - Only show if chat limit not reached -->
-        <div x-show="!showIntro && !chatLimitReached" class="border-t border-gray-200 bg-white shadow-lg p-8 self-end">
+        <div x-show="!showIntro && !chatLimitReached" class="border-t border-gray-200 bg-white shadow-lg px-8 py-4">
             <form @submit.prevent="sendMessage()" class="max-w-5xl mx-auto">
                 <div class="grid grid-cols-[1fr_auto] gap-4 items-center">
                     <div class="relative">
