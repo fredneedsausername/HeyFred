@@ -195,3 +195,6 @@ cython_debug/
 
 # The crash logs from fredcrash
 error_*.log
+
+# The gunicorn settings
+gunicorn.conf.py
