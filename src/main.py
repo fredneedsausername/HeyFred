@@ -14,6 +14,9 @@ monkey.patch_all()          # Leave these two lines at the end of the imports el
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
+cors_origins_str = os.getenv('CORS_ALLOWED_ORIGINS')
+allowed_origins = [origin.strip() for origin in cors_origins_str.split(',') if origin.strip()]
+
 
 # Initialize web app
 flask_template_folder = str(Path(__file__).resolve().parent.parent / "templates")
@@ -23,7 +26,7 @@ app = Flask(__name__, template_folder=flask_template_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 
 
-socketio = SocketIO(app, async_mode="gevent")
+socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins=allowed_origins)
 
 
 def generate_llm_response(history):    
