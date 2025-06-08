@@ -59,9 +59,6 @@
         /* Non-special code */
         .message-content code:not(.hljs), .hljs-variable, .hljs-title { color: #000; }
 
-    </style>
-    
-    <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -118,6 +115,9 @@
         
         .message-content p {
             margin: 0.75em 0;
+            max-width: 100% !important;
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
         }
         
         .message-content p:first-child {
@@ -175,6 +175,7 @@
             padding: 1em;
             margin: 1em 0;
             overflow-x: auto;
+            white-space: pre;
         }
         
         .message-content pre code {
