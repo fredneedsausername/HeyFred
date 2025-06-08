@@ -1,7 +1,10 @@
 from flask import Flask, render_template, session, redirect, url_for, request, make_response
 from flask_socketio import SocketIO, emit
 import os
-from .fredcrash import enable_crash_logging
+try:
+    from .fredcrash import enable_crash_logging
+except ImportError:
+    from fredcrash import enable_crash_logging
 from dotenv import load_dotenv
 from pathlib import Path
 from openai import OpenAI
