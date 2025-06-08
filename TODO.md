@@ -2,10 +2,6 @@
 
 ** Necessary **
 
-- more readable font for code
-- clean up comments
-- user should be able to write a prompt while the answer is generating, for it to be sent later, and the text area should be focused right after sending the message
-
 ** Secondary **
 
 - Attach images
