@@ -245,8 +245,8 @@
             <button @click="clearChat()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-base font-medium shadow-lg">Cancella</button>
         </div>
 
-        <!-- Mobile Header (Mobile Only) -->
-        <div x-show="!showIntro" class="md:hidden bg-gray-50 px-2 py-2">
+        <!-- Mobile Header (Mobile Only) - Floating on top -->
+        <div x-show="!showIntro" class="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-50 px-2 py-2 shadow-sm">
             <div class="flex items-center justify-between">
                 <div class="text-lg font-semibold text-black tracking-tight">HeyFred</div>
                 <button @click="clearChat()" class="px-2 py-1 bg-red-500 text-white rounded text-sm font-medium">Cancella</button>
@@ -272,7 +272,7 @@
         </div>
 
         <!-- Messages Area -->
-        <div x-show="!showIntro" class="flex-1 overflow-y-auto py-4 min-h-0" id="messages-container">
+        <div x-show="!showIntro" class="flex-1 overflow-y-auto py-4 pt-16 md:pt-4 min-h-0" id="messages-container">
             <div class="max-w-full md:max-w-5xl mx-auto px-3 md:px-8">
                 <!-- Welcome Message -->
                 <div x-show="messages.length === 0" class="text-center flex flex-col justify-center min-h-[60vh]">
