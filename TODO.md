@@ -2,8 +2,6 @@
 
 ** Necessary **
 
-- Adjust the input text area padding 
-
 ** Secondary **
 
 - Attach images
