@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from openai import OpenAI
 from functools import wraps
+from datetime import timedelta
 from gevent import monkey   # Leave these two lines at the end of the imports else undefined behaviour
 monkey.patch_all()          # Leave these two lines at the end of the imports else undefined behaviour
 
@@ -27,6 +28,9 @@ flask_template_folder = str(Path(__file__).resolve().parent.parent / "templates"
 
 app = Flask(__name__, template_folder=flask_template_folder)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+
+# Time for session to expire
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=31)
 
 
 socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins=allowed_origins)
@@ -69,7 +73,7 @@ def generate_llm_response(history):
 def authentication_needed(fn):
     @wraps(fn)
     def implementation(*args, **kwargs):
-        if 'user' in session:
+        if 'fred_logged_in' in session:
             return fn(*args, **kwargs)
         else:
             return redirect(url_for('login'))
@@ -87,7 +91,10 @@ def login():
         password = request.form.get('password')
         
         if password == os.getenv('LOGIN_PASSWORD'):
-            session['user'] = 'freduser'
+            session['fred_logged_in'] = True
+
+            # To use PERMANENT_SESSION_LIFETIME's session duration
+            session.permanent = True
             
             if is_htmx_request():
                 # For htmx requests, return empty content with redirect header
