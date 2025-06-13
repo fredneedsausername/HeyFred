@@ -38,15 +38,6 @@ socketio = SocketIO(app, async_mode="gevent", cors_allowed_origins=allowed_origi
 
 def generate_llm_response(history):    
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-
-    system_prompt = {
-        "role": "system",
-        "content": "You are Fred, an LLM."
-    }
-
-    # DO NOT WRITE THIS: history += [system_prompt] BECAUSE THE SYSTEM PROMPT HAS TO BE THE FIRST
-    history = [system_prompt] + history # KEEP THIS ORDER
-
     
     try:
         stream = client.chat.completions.create(
