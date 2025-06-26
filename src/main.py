@@ -41,7 +41,7 @@ def generate_llm_response(history):
     
     try:
         stream = client.chat.completions.create(
-            model="gpt-4.1-nano",   # Name of the generating model
+            model="gpt-4.1-mini",   # Name of the generating model
             messages=history,       # Messages to respond to
             stream=True,            # Stream response as it forms
             temperature=0,          # More deterministic for coding
